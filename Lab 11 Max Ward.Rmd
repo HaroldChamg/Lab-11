@@ -1,0 +1,142 @@
+---
+title: "Lab 11"
+author: "Max Ward"
+date: "4/3/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(ggplot2)
+library(stringr)
+library(babynames)
+view(babynames)
+```
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+Max <- babynames%>%
+  filter(str_detect(name, "^Max") == T)
+Max
+```
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+Max2 <- babynames%>%
+filter(str_detect(name, "^Maxwell$") == T)
+Max2
+```
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+# Compute histogram
+# Bar plot is better for this categorical data
+ggplot(data = Max, aes(x = year, y = prop))+
+  geom_smooth()+
+  geom_smooth(data = Max2, mapping = aes(x = year, y = prop), color = 'red')+
+  ggtitle('Red = Maxwell, Blue = Max related names')+
+  geom_vline(xintercept = 1998, color = 'green') 
+```
+
+**The yellow line is set in 1998 which was the year I was born, and as you can tell the popularity of my name has only increased over the years. Relative to other "Max" names the gap has only increased. Maxwell has gained popularity quickly. 
+
+#Differnt versions of Ariel in 1973, 1988, 1990
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+#Ariel and Rachel
+ariel <- babynames %>%
+  filter(str_detect(name, "Ar[iy]+.l+[^a]?$"), year == 1973)%>%
+  count()
+ariel
+ariel1 <- babynames %>%
+  filter(str_detect(name, "Ar[iy]+.l+[^a]?$"), year == 1988)%>%
+  count()
+ariel1
+ariel2 <- babynames %>%
+  filter(str_detect(name, "Ar[iy]+.l+[^a]?$"), year == 1990)%>%
+  count()
+ariel2
+```
+**As we can see from the data there were 3 differnt ways to spelling Ariel in 1973, 8 ways to spelling Ariel in 1988 and 10 ways to spelling Ariel in 1990.
+
+#Differnt versions of Rachel in 1973, 1988, 1990
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+rachel <- babynames %>%
+  filter(str_detect(name, "Ra[ey]?ch.*l"), year == 1973)%>%
+  count()
+rachel
+rachel1 <- babynames %>%
+  filter(str_detect(name, "Ra[ey]?ch.*l"), year == 1988)%>%
+  count()
+rachel1
+rachel2 <- babynames %>%
+  filter(str_detect(name, "Ra[ey]?ch.*l"), year == 1990)%>%
+  count()
+rachel2
+```
+**As we can see from the data there were 14 differnt ways to spelling Rachel in 1973, 21 ways to spelling Ariel in 1988 and 19 ways to spelling Ariel in 1990. There are many more variations of the way Rachel is spelled vs Ariel.
+
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+prop1988 <- babynames %>%
+  filter(str_detect(name,"Ar[iy]+.l+[^a]?$"),year==1988,sex == "F") %>%
+  count(wt = prop) 
+prop1990 <- babynames %>%
+  filter(str_detect(name,"Ar[iy]+.l+[^a]?$"),year==1990,sex == "F") %>%
+  count(wt = prop)
+arieldifference <- prop1990 - prop1988
+arieldifference
+```
+**As we can see, the years following the movies release the difference of the proportion of the name Ariel had quite a big gain.
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+vowelnames1988 <- babynames %>%
+  filter(str_detect(name, "^[AEIOU]"), year == 1988, sex == "F")
+vowelnames1990 <- babynames %>%
+  filter(str_detect(name, "^[AEIOU]"), year == 1990, sex == "F")
+combined<- inner_join(vowelnames1988,vowelnames1990,by="name") %>% 
+  mutate(diff=prop.y-prop.x) %>% 
+  select(name,prop.x,prop.y,diff)
+propdifferenceforvowelnames <- filter(combined, diff < arieldifference) %>%
+  arrange(desc(diff))
+propdifferenceforvowelnames
+```
+**Looking at this table we can easily see that Ariel has the second biggest proportion gain from the year before to the year after the Movie came out. This just shows how big of an impact the movie had on names the following year. 
+
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+allfemalenames88 <- babynames %>%
+  filter(year == 1988, sex == "F")
+allfemalenames90 <- babynames %>%
+  filter(year == 1990, sex == "F")
+plottibble <- inner_join(allfemalenames88,allfemalenames90, by = "name") %>%
+  mutate(diff = prop.y -prop.x) %>%
+  select(name, prop.x, prop.y, diff)
+differencetibble <- filter(plottibble, diff < arieldifference) %>%
+  arrange(desc(diff))
+ggplot(data = differencetibble, aes(x = name, y = diff)) + 
+  geom_point(color='blue') +
+  geom_smooth(method = "lm", se = FALSE)+
+  geom_hline(yintercept = 0.00128231, color = 'green') 
+```
+
+**When lookinng at this graph we can see from the Green line (Ariel's difference propotion) that the value 0.00128231 is in the top side. Again showing how much of a change the movie made on girl names. 
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+Name <- Max2 %>%
+  filter(year >= 1998, sex == "M") 
+ggplot(data = Name) +
+  ggtitle('Maxwell Years 1998-2017')+
+  geom_smooth(se = FALSE, mapping = aes(x = year, y = prop))
+Name2 <- Max2 %>%
+  filter(year >= 1978, sex == "M") %>%
+  filter(year <= 1998)
+ggplot(data = Name2) +
+  ggtitle('Maxwell Years 1978-1998')+
+  geom_smooth(se = FALSE, mapping = aes(x = year, y = prop))
+Name3 <- babynames %>%
+  filter(year >= 1998, sex == "M")
+ggplot(data = Name3) +
+  ggtitle('Maxwell Compaired to all Other Names')+
+  geom_smooth(se = FALSE, mapping = aes(x = year, y = prop))
+```
+
+
+**As we can see from the year I was born until now there has been a lot of flucuation with my name. On the other hand, on the years leading up until the year I was born there was a steady increase in the use of the name Maxwell. Compaing my name to all other names though you see a steady decline from the year I was born until now. 
