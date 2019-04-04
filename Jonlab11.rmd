@@ -1,0 +1,246 @@
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+library(tidyverse)
+library(babynames)
+library(stringr)
+library(ggplot2)
+data <- babynames
+```
+
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+
+letterJON <- data %>%
+  filter(str_detect(data$name, "^Jon"))
+letterJON
+
+exactJON <- data %>%
+  filter(str_detect(data$name, "Jo(h|n|(hn))$"))
+exactJON
+
+ggplot(data = letterJON, mapping = aes(x = year, y = prop)) +
+  geom_smooth() +
+  geom_smooth(data = exactJON, mapping = aes(x = year, y = prop), color = 'Red')
+#How popular was my name back when I was born compared to now?
+
+onlyjon <- data %>%
+  filter(str_detect(data$name, "^Jon$"), year == 2017)
+total <- select(onlyjon, n)
+numerator <- sum(total)
+onlyjon2 <- data %>%
+  filter(str_detect(data$name, "^Jon$"), year == 1999) %>%
+  select(n)
+numerator2 <- sum(onlyjon2)
+
+allnames2 <- data %>%
+  filter(year == 1999) %>%
+  select(n)
+denominator2 <- sum(allnames2) 
+
+allnames <- data %>%
+  filter(year == 2017) %>%
+  select(n)
+denominator1 <- sum(allnames)
+
+popularity2 <- numerator2/denominator2
+popularity1 <- numerator/denominator1
+popularity1
+popularity2
+
+
+propJON <- letterJON %>%
+  summarise(prop = mean(str_detect(name, "^Jon$"))) %>%
+  as.numeric()
+propJON
+```
+The red line in the plot takes into account the spelling "John", which is why the popularity starts much higher. Removing the h makes a huge difference in the proportion compared to the rest of the names.  
+
+How popular was my name back when I was born compared to now?
+
+From these values we can see my name was much more popular(relatively to other jons only) in 1999.  I did this by dividing the count of Jon in 1999 by all names in 1999, like a probability. The values are extremely low because during that time Jon was not popular, but John was.
+
+
+How popular is Jon compared to names that start with those 3 letters?
+
+From this value we see Jon is nowhere near popular for names that start with the sequence.  In fact, it is around 3%.  This is likely due to the fact that John is much more popular of a name
+
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+#Ariel and Rachel
+
+ariel <- data %>%
+  filter(str_detect(name, "Ar[iy]+.l+[^a]?$"), year == 1973)
+#2 versions for 1973
+ariel1 <- data %>%
+  filter(str_detect(name, "Ar[iy]+.l+[^a]?$"), year == 1988)
+#7 female versions for 1988
+ariel2 <- data %>%
+  filter(str_detect(name, "Ar[iy]+.l+[^a]?$"), year == 1990)
+#8 female versions for 1990
+
+rachel <- data %>%
+  filter(str_detect(name, "Ra[ey]?ch.*l"), year == 1973)
+#13 versions for females in 1973
+rachel1 <- data %>%
+  filter(str_detect(name, "Ra[ey]?ch.*l"), year == 1988)
+#19 version for females in 1988
+rachel2 <- data %>%
+  filter(str_detect(name, "Ra[ey]?ch.*l"), year == 1990)
+#17 version for females in 1990
+
+```
+
+We find that there was 2 versions of ariel in 1973, 7 in 1988, and 8 in 1990.  We further find that rachel had 13 versions in 73, 19 in 88, and 17 in 90. 
+
+
+
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+countariel <- ariel %>%
+  select(n) 
+numb1 <- sum(countariel)
+
+countariel2 <- ariel1 %>%
+  select(n)
+numb2 <- sum(countariel2)
+
+countariel3 <- ariel2 %>%
+  select(n)
+numb3 <- sum(countariel3)
+
+totalcount <- data %>%
+  filter(sex == 'F', year == 1973) %>%
+  select(n)
+totalnumber1973 <- sum(totalcount)
+
+totalcount1 <- data %>%
+  filter(sex == 'F', year == 1988) %>%
+  select(n)
+totalnumber1988 <- sum(totalcount1)
+
+totalcount2 <- data %>%
+  filter(sex == 'F', year == 1990) %>%
+select(n)
+totalnumber1990 <- sum(totalcount2)
+
+
+
+countrachel <- rachel %>%
+  select(n) 
+numb4 <- sum(countariel)
+
+countrachel2 <- rachel1 %>%
+  select(n)
+numb5 <- sum(countariel2)
+
+countrachel3 <- rachel2 %>%
+  select(n)
+numb6 <- sum(countariel3)
+
+prob1973 <- (numb1 + numb4)/totalnumber1973
+prob1988 <- (numb2 + numb5)/totalnumber1988
+prob1990 <- (numb3 + numb6)/totalnumber1990
+
+prob1973
+prob1988
+prob1990
+```
+
+Chances a girl is named either in given years?
+
+We can see here the chances get increasingly higher for each year.
+We can see from previous sections that the little mermaid did infact increase the popularity of princess names.  We can tell this by the increase in probability, and the increase of variations
+
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+prop1988 <- data %>%
+  filter(str_detect(name,"Ar[iy]+.l+[^a]?$"),year==1988,sex == "F") %>%
+  count(wt = prop) %>%
+
+
+prop1990 <- data %>%
+  filter(str_detect(name,"Ar[iy]+.l+[^a]?$"),year==1990,sex == "F") %>%
+  count(wt = prop)
+
+arieldifference <- prop1990 - prop1988
+arieldifference
+```
+
+As you can see, the difference in the proportion of ariel names after the movies release seems quite large, but how can we tell relatively?
+
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+vowelnames1988 <- data %>%
+  filter(str_detect(name, "^[AEIOU]"), year == 1988, sex == "F")
+
+vowelnames1990 <- data %>%
+  filter(str_detect(name, "^[AEIOU]"), year == 1990, sex == "F")
+
+combined<- inner_join(vowelnames1988,vowelnames1990,by="name") %>% 
+  mutate(diff=prop.y-prop.x) %>% 
+  select(name,prop.x,prop.y,diff)
+
+propdifferenceforvowelnames <- filter(combined, diff < arieldifference) %>%
+  arrange(desc(diff))
+propdifferenceforvowelnames
+```
+
+As we can see from the tibble, Ariel has the second largest difference in proportion for all names, right behind alyssa.  This would mean she is above the 99%, essentialy the 100%.
+
+
+What about in comparison to other names? Simply adjusting our code would make this easy to see.
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+allfemalenames88 <- data %>%
+  filter(year == 1988, sex == "F")
+
+allfemalenames90 <- data %>%
+  filter(year == 1990, sex == "F")
+
+plottibble <- inner_join(allfemalenames88,allfemalenames90, by = "name") %>%
+  mutate(diff = prop.y -prop.x) %>%
+  select(name, prop.x, prop.y, diff)
+
+differencetibble <- filter(plottibble, diff < arieldifference) %>%
+  arrange(desc(diff))
+
+ggplot(data = differencetibble) +
+  geom_point(mapping = aes(x = name, y = diff))
+```
+
+As we can see from the plot, a value of ~.001 puts ariel in the upper quartile of all proportions of name changes.  Thus, The little mermaid made a rather significant difference in the change of ariel's proportions.
+
+
+
+
+###Final Section
+
+```{r,echo=FALSE,message = FALSE, warning=FALSE}
+finaldata <- exactJON %>%
+  filter(year >= 1999, sex == "M") 
+ggplot(data = finaldata) +
+  geom_smooth(se = FALSE, mapping = aes(x = year, y = prop))
+
+finaldata2 <- exactJON %>%
+  filter(year >= 1980, sex == "M") %>%
+  filter(year <= 1999)
+ggplot(data = finaldata2) +
+  geom_smooth(se = FALSE, mapping = aes(x = year, y = prop))
+
+
+#Considering these two plots, we see that from my birth year on, there has been a steady decline in the usage of Jon.  However, 18 years before my birthdate, there was a surge around 1988)
+finaldata3 <- data %>%
+  filter(year >= 1999, sex == "M")
+
+
+ggplot(data = finaldata3) +
+  geom_smooth(se = FALSE, mapping = aes(x = year, y = prop))
+
+#Comparing the plot for Jon and all other names, we see that it is on a general declining trend that is unlike the common trend.  This means the change in proportion is rather unique. 
+```
+
+
+Considering these two plots, we see that from my birth year on, there has been a steady decline in the usage of Jon.  However, 18 years before my birthdate, there was a surge around 1988
+
+
+
+Comparing the plot for Jon and all other names, we see that it is on a general declining trend that is unlike the common trend.  This means the change in proportion is rather unique. 
