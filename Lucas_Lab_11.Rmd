@@ -1,0 +1,97 @@
+---
+title: "Lucas_Lab_11"
+author: "Lucas Brack"
+date: "April 3, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(babynames)
+library(tidyverse)
+library(stringr)
+
+```
+
+```{r, results='hide'}
+Luc<-babynames%>%
+  filter(str_detect(name,"^Luc"))%>%
+  group_by(year)%>% 
+  summarize(prop=sum(prop))
+Luc
+
+Lucas<-babynames%>%
+  filter(str_detect(name,"^Lu.as$"),sex=="M")%>%
+  group_by(year)%>% 
+  summarize(prop=sum(prop))
+Lucas
+  
+```
+
+```{r, warning=F, message=FALSE}
+ggplot()+
+  geom_smooth(Luc, mapping=aes(x=year,y=prop),se=FALSE, color="darkblue")+
+  geom_smooth(Lucas,mapping=aes(x=year,y=prop),color="orange",se=FALSE ) +
+  geom_vline(xintercept = 2000, color = 'red')+
+  labs(title="Usage of 'Lucas' and other 'Luc' Up since 80's", x="Year", y="Proportion")
+
+babynames2<-babynames%>%
+  filter(year,year%in%c(1983,2000,2017))
+
+Namepop<-Lucas%>%
+  filter(year%in%c(1983,2000,2017))
+Namepop
+quantile(babynames2$prop, c(.99, .995,.999))
+```
+As the graph shows, the usage of Lucas(the orange line), and other Luc names(blue line) has increased significantly since the 80's. The proportions show this too, growing almost 6 times as much from 1983 to 2017. H0wever, this growth didn't really affect what percentile my name was in, going from the 99%tile to the 99.9%tile, so my name was already pretty popular before, but I would stil say it is more popular than it used to be.
+
+
+```{r, results='hide'}
+Ariel<-babynames%>%
+  filter(str_detect(name,"Ar[iy]+.l+[^a]?$"),sex=="F")%>%
+  group_by(year)
+Ariel
+
+Rachel <- filter(babynames,str_detect(name,"Ra[ey]?ch.*l")) %>% 
+  filter(name!="Rachelann",name!="Rachelanne")%>%
+  group_by(year)
+Rachel
+```
+
+```{r,results='hide'}
+propA<-Ariel%>%
+  summarize(prop=sum(prop))%>%
+  filter(year%in%c(1988,1990))
+propA
+
+
+
+babynames88<-babynames%>%
+  filter(sex=="F"& str_detect(name,"^[AEIOU]")&  year==1988)%>%
+  group_by(year)
+
+babynames90<-babynames%>%
+  filter(sex=="F"& str_detect(name,"^[AEIOU]")&  year==1990)%>%
+  group_by(year)
+
+
+```
+
+
+```{r, warning=F}
+ggplot()+
+  theme_dark()+
+  geom_density(babynames88,mapping=aes(x=prop),color='red')+
+  geom_density(babynames90,mapping=aes(x=prop),color='blue')+
+  xlim(.0003,.01)+
+  geom_vline(xintercept = .00084, color = 'cyan')+
+  geom_vline(xintercept = .0026, color = 'orange')+
+  labs(title="Ariel Grew more Popular after Release of The Little Mermaid", x="Proportion")
+```
+
+  Ariel became much more popular after the release, tripling in the proportion of people naming their babies Ariel, but the name was already pretty popular, going from the 98.5%tile to the 99.3%tile. This is still a good growth, so I would say The Little Mermaid increased the popularity of the name Ariel.
+```{r}
+quantile(babynames88$prop, c(.985))
+quantile(babynames90$prop,c(.993))
+```
+
