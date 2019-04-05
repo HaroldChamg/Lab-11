@@ -1,0 +1,193 @@
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(babynames)
+library(stringr)
+library(ggplot2)
+```
+
+```{r}
+babynames
+```
+
+```{r}
+Har <-filter(babynames,str_detect(babynames$name,pattern = "Har"))
+Har
+
+
+```
+```{r}
+Harold<-filter(babynames,str_detect(babynames$name,pattern = "^Harold$"))
+Harold
+```
+
+```{r}
+ggplot(data = Har)+
+  geom_smooth(mapping =aes (x= year,y = prop))+
+  geom_smooth(data = Harold, mapping = aes(x = year, y = prop), color = 'red')+
+  ggtitle('R = Harold, B = Har')
+```
+
+How popular is your name now relative to the other names that start with the same three letters?
+
+According to the chart, my actual name and names that start with the same three letters are all not very popular nowadays. They both were kinds popular back in 1900s, especially for my names. However, after 1920 there was a huge downhill on my name from .004 to 0.
+
+```{r}
+filter(Harold,year ==1996)
+```
+```{r}
+filter(Harold,year ==2017)
+```
+
+How popular is your name now compared to when you were born?
+
+Harold was a more popular name back in 1996. roughly more 220 Harold in 1996.
+
+
+```{r}
+ar <- babynames %>%
+  filter(str_detect(name, "Ar[iy]+.l+[^a]?$"), year == 1973)%>%
+  count()
+ar
+ar2 <- babynames %>%
+  filter(str_detect(name, "Ar[iy]+.l+[^a]?$"), year == 1988)%>%
+  count()
+ar2
+ar3 <- babynames %>%
+  filter(str_detect(name, "Ar[iy]+.l+[^a]?$"), year == 1990)%>%
+  count()
+ar3
+ar4 <- babynames %>%
+  filter(str_detect(name, "Ar[iy]+.l+[^a]?$"), year == 2017)%>%
+  count()
+ar4
+```
+
+
+```{r}
+rach <- babynames %>%
+  filter(str_detect(name, "Ra[ey]?ch.*l"), year == 1973)%>%
+  count()
+rach
+rach2 <- babynames %>%
+  filter(str_detect(name, "Ra[ey]?ch.*l"), year == 1988)%>%
+  count()
+rach2
+rach3 <- babynames %>%
+  filter(str_detect(name, "Ra[ey]?ch.*l"), year == 1990)%>%
+  count()
+rach3
+rach4 <- babynames %>%
+  filter(str_detect(name, "Ra[ey]?ch.*l"), year == 2017)%>%
+  count()
+rach4
+```
+
+Ariel:1973:3, 1988:8, 1990:10, 2017:15
+
+Rachel:1973:14, 1988:21, 1990:19, 2017:7
+
+```{r}
+filter(babynames, year==1973)%>%
+count()
+filter(babynames, year==1988)%>%
+count()
+filter(babynames, year==1990)%>%
+count()
+filter(babynames, year==2017)%>%
+count()
+```
+
+
+Probability ofgi rl born in 1973/88/90, 2017 would be named either Rachel or Ariel
+```{r}
+17/15681
+29/22364
+29/24719
+22/32469
+```
+
+
+```{r}
+prop1988 <- data %>%
+  filter(str_detect(name,"Ar[iy]+.l+[^a]?$"),year==1988,sex == "F") %>%
+  count(wt = prop)
+
+prop1988
+
+  prop1990 <- data %>%
+  filter(str_detect(name,"Ar[iy]+.l+[^a]?$"),year==1990,sex == "F") %>%
+  count(wt = prop)
+  
+prop1990
+
+0.0026/0.00084
+```
+
+People named their daughters Ariel three times more than before, so I would say people did get affected by the movie.
+
+
+Comparison:
+
+```{r}
+pro1988 <- data %>%
+  filter(str_detect(name,"Ra[ey]?ch.*l"),year==1988,sex == "F") %>%
+  count(wt = prop)
+
+pro1988
+
+pro1990 <- data %>%
+  filter(str_detect(name,"Ra[ey]?ch.*l"),year==1990,sex == "F") %>%
+  count(wt = prop)
+  
+pro1990
+
+0.01/0.009
+```
+
+
+
+```{r}
+vowel1988 <- babynames %>%
+  filter(str_detect(name, "^[AEIOU]"), year == 1988, sex == "F")
+vowel1990 <- babynames %>%
+  filter(str_detect(name, "^[AEIOU]"), year == 1990, sex == "F")
+vowel1988
+vowel1990
+```
+
+
+```{r}
+left<- left_join(vowel1988,vowel1990,by="name") %>% 
+  mutate(diff=prop.y-prop.x)
+left
+```
+
+
+```{r}
+arielcom <- filter(left, diff < 0.00176) %>%
+  arrange(desc(diff))
+arielcom  
+```
+
+To answer the question of whether Ariel was affected the most by the moive, I used a random name(Racheal) as the comparison, and figure that Ariel was used three times more than Racheal after 1989. And for all the name stared with Vowel, Ariel had the highest diff rate compare to all the other names.
+
+
+```{r}
+Namepop <- Harold %>%
+  filter(year >= 1996, sex == "M") 
+ggplot(data = Namepop) +
+  geom_smooth(mapping = aes(x = year, y = prop))
+Namepop2 <- Harold %>%
+  filter(year >= 1979, sex == "M") %>%
+  filter(year <= 1996)
+ggplot(data = Namepop2) +
+  geom_smooth(mapping = aes(x = year, y = prop))
+Namepop3 <- babynames %>%
+  filter(year >= 1996, sex == "M")
+ggplot(data = Namepop3) +
+  geom_smooth( mapping = aes(x = year, y = prop))
+
+```
+
+From the year I was born Harold has been decreasingly used over the past 20 years(in 2011 basically no one was named Harold). However, from 2012,13 Harold was used a little more frequent than the past 20 years.
